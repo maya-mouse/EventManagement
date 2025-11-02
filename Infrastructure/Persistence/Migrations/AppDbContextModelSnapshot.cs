@@ -65,7 +65,7 @@ namespace Infrastructure.Persistence.Migrations
                         {
                             Id = 1,
                             Capacity = 100,
-                            DateTime = new DateTime(2025, 11, 29, 19, 11, 19, 312, DateTimeKind.Utc).AddTicks(1897),
+                            DateTime = new DateTime(2025, 12, 2, 10, 4, 31, 547, DateTimeKind.Utc).AddTicks(6617),
                             Description = "Largest tech gathering of the year.",
                             HostId = 1,
                             IsPublic = true,
@@ -76,7 +76,7 @@ namespace Infrastructure.Persistence.Migrations
                         {
                             Id = 2,
                             Capacity = 50,
-                            DateTime = new DateTime(2025, 12, 14, 19, 11, 19, 312, DateTimeKind.Utc).AddTicks(1904),
+                            DateTime = new DateTime(2025, 12, 17, 10, 4, 31, 547, DateTimeKind.Utc).AddTicks(6624),
                             Description = "Hands-on coding session for contributors.",
                             HostId = 1,
                             IsPublic = true,
@@ -86,7 +86,7 @@ namespace Infrastructure.Persistence.Migrations
                         new
                         {
                             Id = 3,
-                            DateTime = new DateTime(2025, 11, 14, 19, 11, 19, 312, DateTimeKind.Utc).AddTicks(1906),
+                            DateTime = new DateTime(2025, 11, 17, 10, 4, 31, 547, DateTimeKind.Utc).AddTicks(6627),
                             Description = "Discussion on classic literature.",
                             HostId = 2,
                             IsPublic = true,
@@ -97,7 +97,7 @@ namespace Infrastructure.Persistence.Migrations
                         {
                             Id = 4,
                             Capacity = 10,
-                            DateTime = new DateTime(2025, 11, 9, 19, 11, 19, 312, DateTimeKind.Utc).AddTicks(1907),
+                            DateTime = new DateTime(2025, 11, 12, 10, 4, 31, 547, DateTimeKind.Utc).AddTicks(6628),
                             Description = "Team building event (Private).",
                             HostId = 1,
                             IsPublic = false,
@@ -114,6 +114,9 @@ namespace Infrastructure.Persistence.Migrations
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
 
+                    b.Property<DateTime>("JoinDate")
+                        .HasColumnType("timestamp with time zone");
+
                     b.HasKey("EventId", "UserId");
 
                     b.HasIndex("UserId");
@@ -124,22 +127,26 @@ namespace Infrastructure.Persistence.Migrations
                         new
                         {
                             EventId = 1,
-                            UserId = 1
+                            UserId = 1,
+                            JoinDate = new DateTime(2025, 11, 2, 10, 4, 31, 547, DateTimeKind.Utc).AddTicks(6643)
                         },
                         new
                         {
                             EventId = 1,
-                            UserId = 2
+                            UserId = 2,
+                            JoinDate = new DateTime(2025, 11, 2, 10, 4, 31, 547, DateTimeKind.Utc).AddTicks(6645)
                         },
                         new
                         {
                             EventId = 2,
-                            UserId = 1
+                            UserId = 1,
+                            JoinDate = new DateTime(2025, 11, 2, 10, 4, 31, 547, DateTimeKind.Utc).AddTicks(6645)
                         },
                         new
                         {
                             EventId = 3,
-                            UserId = 2
+                            UserId = 2,
+                            JoinDate = new DateTime(2025, 11, 2, 10, 4, 31, 547, DateTimeKind.Utc).AddTicks(6646)
                         });
                 });
 

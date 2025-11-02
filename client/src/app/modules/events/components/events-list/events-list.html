@@ -1,0 +1,64 @@
+<h2 class="text-3xl font-bold text-gray-800 mb-6 border-b pb-2">Публічні Події</h2>
+
+<div *ngIf="isLoading" class="text-center py-10">
+    <p class="text-indigo-600">Завантаження подій...</p>
+    </div>
+
+<div *ngIf="!isLoading && (events$ | async)?.length === 0" class="text-center py-10 bg-gray-50 rounded-lg p-6">
+    <p class="text-xl text-gray-600">Наразі немає публічних подій.</p>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" *ngIf="!isLoading">
+    <div *ngFor="let event of (events$ | async)" 
+         class="bg-white rounded-xl shadow-lg hover:shadow-2xl transition duration-300 overflow-hidden flex flex-col cursor-pointer">
+
+        <div class="p-6 flex-grow" (click)="onViewDetails(event.id)">
+            <h3 class="text-xl font-bold text-gray-900 mb-2">{{ event.title }}</h3>
+
+            <p class="text-gray-600 mb-4 h-12 overflow-hidden">{{ event.Description }}</p>
+
+            <div class="space-y-2 text-sm">
+                <p class="text-gray-700">
+                    <span class="font-semibold">Коли:</span> 
+                    {{ event.dateTime | date:'medium' }}
+                </p>
+                <p class="text-gray-700">
+                    <span class="font-semibold">Де:</span> 
+                    {{ event.location }}
+                </p>
+                <p class="text-gray-700">
+                    <span class="font-semibold">Учасники:</span> 
+                    {{ event.participantsCount }} 
+                    <span *ngIf="event.capacity !== null"> / {{ event.capacity }}</span>
+                </p>
+            </div>
+        </div>
+
+        <div class="p-6 pt-0 border-t border-gray-100">
+            <ng-container *ngIf="isLoggedIn">
+                <button *ngIf="!event.isJoined && !event.isFull" 
+                        
+                        class="w-full py-2 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition duration-150">
+                    Приєднатися
+                </button>
+
+                <button *ngIf="event.isJoined" 
+                       
+                        class="w-full py-2 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition duration-150">
+                    Залишити
+                </button>
+            </ng-container>
+
+            <span *ngIf="event.isFull" 
+                  class="w-full block text-center py-2 bg-gray-300 text-gray-700 font-semibold rounded-lg cursor-not-allowed">
+                Подія заповнена
+            </span>
+            
+            <button *ngIf="!isLoggedIn && !event.isFull"
+                
+                    class="w-full py-2 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition duration-150">
+                Увійти, щоб приєднатися
+            </button>
+        </div>
+    </div>
+</div>

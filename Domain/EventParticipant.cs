@@ -7,4 +7,6 @@ public class EventParticipant
 
     public Event Event { get; set; } = null!;
     public User User { get; set; } = null!;
+
+    public DateTime JoinDate { get; set; } = DateTime.UtcNow;
 }
