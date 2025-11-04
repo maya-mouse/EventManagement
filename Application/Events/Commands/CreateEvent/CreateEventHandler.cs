@@ -1,4 +1,3 @@
-using Application.Events.DTOs;
 using Application.Interfaces.Repositories;
 using AutoMapper;
 using Domain;
@@ -25,7 +24,6 @@ public class CreateEventHandler(IEventRepository eventRepository, IMapper mapper
             };
 
             await eventRepository.JoinEventAsync(userEvent, cancellationToken);
-
            
             return createdEvent.Id;
     }

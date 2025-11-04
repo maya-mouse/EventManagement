@@ -1,6 +1,7 @@
 using Application.Interfaces.Repositories;
 using Application.Interfaces.Services;
 using Application.Users.DTOs;
+using AutoMapper;
 using Domain;
 using MediatR;
 
@@ -25,8 +26,8 @@ IPasswordHasher passwordHasher, IJwtGenerator jwtGenerator) : IRequestHandler<Re
 
         var result = await userRepository.AddUserAsync(user, cancellationToken);
 
-        var token = jwtGenerator.GenerateToken(result.Id, result.Email);
+        var token = jwtGenerator.GenerateToken(result.Id, result.Email, result.Username);
 
-        return new AuthResponseDto { Email = user.Email, Token = token };
+        return new AuthResponseDto { Email = user.Email, Token = token, Username = user.Username };
     }
 }

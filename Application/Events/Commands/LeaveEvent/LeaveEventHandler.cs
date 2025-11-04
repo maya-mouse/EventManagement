@@ -7,7 +7,7 @@ public class LeaveEventHandler(IEventRepository eventRepository) : IRequestHandl
 {
     public async Task<Unit> Handle(LeaveEventCommand request, CancellationToken cancellationToken)
     {
-        await eventRepository.LeaveEventAsync(request.eventId, request.userId, cancellationToken);
+        await eventRepository.LeaveEventAsync(request.userId, request.eventId, cancellationToken);
         return Unit.Value;
     }
 }

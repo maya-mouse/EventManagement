@@ -8,7 +8,6 @@ public class JoinEventCommandHandler : IRequestHandler<JoinEventCommand, Unit>
     private readonly IEventRepository _eventRepository;
 
     public JoinEventCommandHandler(IEventRepository eventRepository) => _eventRepository = eventRepository;
-
     public async Task<Unit> Handle(JoinEventCommand request, CancellationToken cancellationToken)
     {
         
@@ -24,14 +23,12 @@ public class JoinEventCommandHandler : IRequestHandler<JoinEventCommand, Unit>
             throw new Exception("User already joined this event.");
         }
 
-      
         var userEvent = new EventParticipant
         {
             UserId = request.UserId,
             EventId = request.EventId
         };
 
-        
         await _eventRepository.JoinEventAsync(userEvent, cancellationToken);
 
         return Unit.Value;

@@ -6,19 +6,28 @@ using MediatR;
 namespace Application.Events.Queries;
 
 public class GetSingleEventHandler(IEventRepository eventRepository, IMapper mapper) 
-: IRequestHandler<GetSingleEventQuery, EventDto>
+: IRequestHandler<GetSingleEventQuery, EventDetailDto>
 {
-    public async Task<EventDto> Handle(GetSingleEventQuery request, CancellationToken cancellationToken)
+    public async Task<EventDetailDto> Handle(GetSingleEventQuery request, CancellationToken cancellationToken)
     {
-        var @event = await eventRepository.GetEventByIdAsync(request.eventId, cancellationToken);
+        var @event = await eventRepository.GetEventByIdAsync(request.EventId, cancellationToken);
 
         if (@event is null)
         {
-            throw new Exception("Event not found");
+
+            throw new Exception("Event not found"); 
         }
+        
+        var eventDto = mapper.Map<EventDetailDto>(@event);
 
-        var eventDto = mapper.Map<EventDto>(@event);
-
+        if (request.UserId.HasValue)
+        {
+            var userId = request.UserId.Value;
+            eventDto.IsOrganizer = @event.HostId == userId;
+            eventDto.IsJoined = @event.Participants.Any(ue => ue.UserId == userId);
+        }
+        
+        eventDto.ParticipantsCount = @event.Participants.Count;
         return eventDto;
     }
 }

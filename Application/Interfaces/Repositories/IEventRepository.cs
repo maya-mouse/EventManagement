@@ -4,17 +4,12 @@ namespace Application.Interfaces.Repositories;
 
 public interface IEventRepository
 {
-   // Queries
         Task<List<Event>> GetPublicEventsAsync(CancellationToken cancellationToken);
         Task<Event?> GetEventByIdAsync(int eventId, CancellationToken cancellationToken);
         Task<List<Event>> GetUserEventsAsync(int userId, CancellationToken cancellationToken);
-
-        // Commands (CRUD)
         Task<Event> AddEventAsync(Event newEvent, CancellationToken cancellationToken);
         Task UpdateEventAsync(Event eventToUpdate, CancellationToken cancellationToken);
         Task DeleteEventAsync(Event eventToDelete, CancellationToken cancellationToken);
-
-        // Commands (User Interaction)
         Task<bool> IsUserJoinedAsync(int userId, int eventId, CancellationToken cancellationToken);
         Task JoinEventAsync(EventParticipant userEvent, CancellationToken cancellationToken);
         Task LeaveEventAsync(int userId, int eventId, CancellationToken cancellationToken);

@@ -3,4 +3,4 @@ using MediatR;
 
 namespace Application.Events.Queries;
 
-public record GetSingleEventQuery(int eventId) : IRequest<EventDto>;
+public record GetSingleEventQuery(int EventId, int? UserId) : IRequest<EventDetailDto>;

@@ -1,7 +1,7 @@
 using System.Reflection;
 using System.Text;
+using Api.Middleware;
 using Application.Core;
-using Application.Interfaces;
 using Application.Interfaces.Repositories;
 using Application.Interfaces.Services;
 using Application.Users.Commands.Register;
@@ -17,8 +17,7 @@ using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
@@ -67,6 +66,8 @@ builder.Services.AddDbContext<AppDbContext>(opt =>
     opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
+builder.Services.AddScoped<AppDbContextSeeder>();
+
 var jwtKey = builder.Configuration["Jwt:Key"];
 var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey!));
 
@@ -87,7 +88,6 @@ builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBeh
 
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(RegisterHandler).Assembly));
 
-builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
 builder.Services.AddAuthorization();
 
@@ -100,30 +100,31 @@ builder.Services.AddCors(opt =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+app.UseMiddleware<ErrorHandlingMiddleware>();
+app.UseHttpsRedirection();
 app.UseRouting();
 app.UseCors("AllowAngularClient");
 app.UseAuthentication(); 
 app.UseAuthorization(); 
-app.UseHttpsRedirection();
 app.MapControllers();
 
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-
     try
     {
         var context = services.GetRequiredService<AppDbContext>();
-
         await context.Database.MigrateAsync();
 
-
+       
+        var seeder = services.GetRequiredService<AppDbContextSeeder>();
+        await seeder.SeedAsync(); 
     }
     catch (Exception ex)
     {

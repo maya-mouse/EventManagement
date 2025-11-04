@@ -17,17 +17,17 @@ IPasswordHasher passwordHasher, IJwtGenerator jwtGenerator): IRequestHandler<Log
             throw new UnauthorizedAccessException("Incorrect email or password"); 
         }
 
-        
         if (!passwordHasher.VerifyPassword(request.Password, user.PasswordHash))
         {
              throw new UnauthorizedAccessException("Incorrect email or password");
         }
 
-        var token = jwtGenerator.GenerateToken(user.Id, user.Email);
+        var token = jwtGenerator.GenerateToken(user.Id, user.Email, user.Username);
 
         return new AuthResponseDto 
         { 
             Email = user.Email, 
+            Username = user.Username,
             Token = token 
         };
     }

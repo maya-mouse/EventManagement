@@ -14,14 +14,16 @@ public class JwtGenerator : IJwtGenerator
 
     public JwtGenerator(IConfiguration config)
     {
-        _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:Key"] ?? ""));  
+        _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:Key"] ??
+        "tttt_ii_a_yyyy_ssssss_kkk_tttt_ssssss_bb_llll_aaa_ccccccc_fff_ssssssss"));  
     }
-    public string GenerateToken(int userId, string Email)
+    public string GenerateToken(int userId, string Email, string Username)
     {
         var claims = new List<Claim>
         {
             new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
             new Claim(ClaimTypes.Email, Email),
+            new Claim(ClaimTypes.Name, Username)
         };
 
         var credentials = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512Signature);
@@ -29,7 +31,7 @@ public class JwtGenerator : IJwtGenerator
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(claims),
-            Expires = DateTime.Now.AddDays(1), 
+            Expires = DateTime.UtcNow.AddDays(1), 
             SigningCredentials = credentials
         };
 

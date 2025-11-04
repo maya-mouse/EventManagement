@@ -1,7 +1,9 @@
 using Application.Users.Commands.Login;
 using Application.Users.Commands.Register;
 using Application.Users.DTOs;
+
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers;
@@ -16,11 +18,12 @@ public class UsersController(IMediator mediator) : ControllerBaseApi
         var result = await _mediator.Send(command);
         return Ok(result);
     }
-    
-    [HttpPost("login")] 
+
+    [HttpPost("login")]
     public async Task<ActionResult<AuthResponseDto>> Login(LoginCommand command)
     {
         var result = await _mediator.Send(command);
         return Ok(result);
     }
+
 }

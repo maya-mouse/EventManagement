@@ -1,11 +1,11 @@
 export interface Event {
     id: number
     title: string
-    Description: string
+    description: string
     dateTime: Date
     location: string
     capacity: number | null
     participantsCount: number
-    isJoined: boolean
     isFull: boolean
+    isJoined: boolean
 }

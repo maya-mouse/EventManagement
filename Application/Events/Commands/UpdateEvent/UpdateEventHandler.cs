@@ -1,6 +1,5 @@
 using Application.Interfaces.Repositories;
 using AutoMapper;
-using Domain;
 using MediatR;
 
 namespace Application.Events.Commands;
@@ -10,10 +9,22 @@ public class UpdateEventHandler(IEventRepository eventRepository, IMapper mapper
 {
     public async Task<Unit> Handle(UpdateEventCommand request, CancellationToken cancellationToken)
     {
-        var newEvent = mapper.Map<Event>(request);
+      var existingEvent = await eventRepository.GetEventByIdAsync(request.EventId, cancellationToken);
+        
+        if (existingEvent == null)
+        {
+            throw new Exception("Event not found."); 
+        }
 
-        await eventRepository.UpdateEventAsync(newEvent, cancellationToken);
-           
+        if (existingEvent.HostId != request.OrganizerId)
+        {
+            throw new UnauthorizedAccessException("Only the event organizer can modify the event.");
+        }
+
+        mapper.Map(request.updateEventDto, existingEvent); 
+        
+        await eventRepository.UpdateEventAsync(existingEvent, cancellationToken); 
+        
         return Unit.Value;
     }
 }

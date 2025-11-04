@@ -1,0 +1,137 @@
+<div class="py-8 px-4 sm:px-6 lg:px-8">
+
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-4xl font-extrabold text-gray-900">My Events</h1>
+            <p class="text-gray-500">View and manage your event calendar</p>
+        </div>
+
+        <div class="flex items-center space-x-3">
+
+            <button (click)="toggleOrganizedFilter()" [class.bg-purple-600]="showOnlyOrganized"
+                [class.bg-gray-200]="!showOnlyOrganized" [class.text-white]="showOnlyOrganized"
+                [class.text-gray-700]="!showOnlyOrganized"
+                class="px-4 py-2 font-semibold rounded-lg transition duration-150 shadow-md text-sm">
+                @if (showOnlyOrganized) {
+                My Organized Events
+                } @else {
+                Show All Events
+                }
+            </button>
+        </div>
+
+    </div>
+
+    <div class="flex justify-between items-center mb-6">
+
+        <div class="flex items-center space-x-4">
+            <button (click)="prev()" class="text-gray-500 hover:text-gray-800"> &lt; </button>
+
+            <span class="text-lg font-semibold">
+                @if (view === 'month') {
+                {{ viewDate | date:'MMMM yyyy' }}
+                } @else if (weekDays.length > 0) {
+                {{ weekDays[0].date | date:'MMM d' }} - {{ weekDays[6].date | date:'MMM d, yyyy' }}
+                } @else {
+                Loading Week...
+                }
+            </span>
+
+            <button (click)="next()" class="text-gray-500 hover:text-gray-800"> &gt; </button>
+        </div>
+
+        <div class="inline-flex rounded-md shadow-sm border border-gray-300">
+            <button (click)="setView('month')" [class.bg-pink-600]="view === 'month'"
+                [class.text-white]="view === 'month'" [class.text-gray-700]="view !== 'month'"
+                class="px-4 py-2 text-sm font-medium rounded-l-md transition duration-150">Month</button>
+            <button (click)="setView('week')" [class.bg-pink-600]="view === 'week'" [class.text-white]="view === 'week'"
+                [class.text-gray-700]="view !== 'week'"
+                class="px-4 py-2 text-sm font-medium rounded-r-md transition duration-150">Week</button>
+        </div>
+    </div>
+
+    @if (isLoading) {
+    <div class="text-center py-20">
+        <p class="text-pink-600">Loading calendar...</p>
+    </div>
+    } @else if ((viewModel$ | async)!.hasEvents === false) {
+    <div class="text-center py-20 bg-gray-100 rounded-lg p-6">
+        <p class="text-xl text-gray-700 mb-4">You are not part of any events yet. Explore public events and join.</p>
+        <a routerLink="/events"
+            class="mt-4 inline-block px-4 py-2 text-white bg-pink-600 rounded-lg hover:bg-pink-700">Explore Events</a>
+    </div>
+    } @else {
+
+    <div class="bg-white rounded-lg shadow-xl border border-gray-200" [class.-mt-px]="view === 'month'">
+
+        @if (view === 'month') {
+
+        <div class="grid grid-cols-7 text-center font-bold text-gray-600 border-b border-t border-gray-300 bg-gray-50">
+            @for (dayName of ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']; track $index) {
+            <span class="py-2">{{ dayName }}</span>
+            }
+        </div>
+
+        <div class="grid grid-cols-7 border-t border-l border-gray-200">
+            @for (day of daysInView; track day.date.getTime()) {
+
+            <div (click)="onDayClick(day)" [class.border-pink-600]="day.isToday"
+                [class.border-blue-600]="day.isCurrentMonth && day.events.length > 0"
+                [class.opacity-40]="!day.isCurrentMonth" [class.bg-gray-50]="day.isToday"
+                class="min-h-32 p-1 border-r border-b border-gray-200 hover:bg-pink-50 transition duration-75 cursor-pointer flex flex-col relative">
+                <span class="text-xs font-semibold mb-1 p-1 text-right" [class.text-blue-600]="day.isToday">
+                    {{ day.dayOfMonth }}
+                </span>
+
+                @if (day.events.length > 0) {
+                @for (event of day.events; track event.id) {
+                <div (click)="onEventClick(event.id); $event.stopPropagation()"
+                    [class.bg-purple-100]="event.isOrganizer" [class.text-purple-700]="event.isOrganizer"
+                    [class.bg-blue-100]="!event.isOrganizer" [class.text-blue-700]="!event.isOrganizer"
+                    class="text-xs rounded-sm px-1 py-0.5 mt-0.5 truncate hover:shadow transition duration-100 border border-transparent hover:border-pink-300">
+                    <span class="font-bold">{{ event.dateTime | date:'HH:mm' }}</span> - {{ event.title }}
+                </div>
+                }
+                }
+            </div>
+            }
+        </div>
+
+        } @else {
+
+        <div class="grid grid-cols-7 text-center font-bold text-gray-600 border-b border-t border-gray-300 bg-gray-50">
+            @for (day of weekDays; track day.date.getTime()) {
+            <span class="py-2">{{ day.date | date:'EEE' }}</span>
+            }
+        </div>
+
+        <div class="grid grid-cols-7 border border-gray-200">
+            @for (day of weekDays; track day.date.getTime()) {
+
+            <div (click)="onDayClick(day)" [class.border-pink-600]="day.isToday" [class.bg-gray-50]="day.isToday"
+                [class.opacity-70]="!day.isCurrentMonth"
+                class="min-h-40 p-3 border-r border-b border-gray-200 flex flex-col transition duration-75 cursor-pointer">
+                <span class="text-sm font-semibold mb-2" [class.text-blue-600]="day.isToday"
+                    [class.text-gray-400]="!day.isCurrentMonth">
+                    {{ day.dayOfMonth }}
+                </span>
+
+                @if (day.events.length > 0) {
+                @for (event of day.events; track event.id) {
+                <div (click)="onEventClick(event.id); $event.stopPropagation()"
+                    [class.bg-purple-100]="event.isOrganizer" [class.text-purple-700]="event.isOrganizer"
+                    [class.bg-blue-100]="!event.isOrganizer" [class.text-blue-700]="!event.isOrganizer"
+                    class="text-xs rounded-sm p-1 mt-1 truncate hover:shadow transition duration-100">
+                    <span class="font-bold">{{ event.dateTime | date:'HH:mm' }}</span> - {{ event.title }}
+                </div>
+                }
+                } @else {
+                <span class="text-xs text-gray-400 mt-2">No events</span>
+                }
+            </div>
+            }
+        </div>
+        }
+    </div>
+    }
+</div>

@@ -4,12 +4,13 @@ public class EventDto
 {
     public int Id { get; set; }
     public required string Title { get; set; } = "";
-    public required string Description { get; set; } = ""; 
+    public required string Description { get; set; } = "";
     public DateTime DateTime { get; set; }
     public required string Location { get; set; } = "";
-    public int? Capacity { get; set; } 
+    public int? Capacity { get; set; }
     public int ParticipantsCount { get; set; }
     public bool IsFull => Capacity.HasValue && ParticipantsCount >= Capacity.Value;
-    public int UserId { get; set; }
-    public bool IsJoined { get; set; } 
+    
+    public bool IsJoined { get; set; }
+
 }
