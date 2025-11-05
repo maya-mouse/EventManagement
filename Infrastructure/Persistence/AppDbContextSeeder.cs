@@ -17,31 +17,28 @@ public class AppDbContextSeeder
 
     public async Task SeedAsync()
     {
+
         if (await _context.Users.AnyAsync())
         {
+            Console.WriteLine("INFO: Users found. Skipping seeding.");
             return;
         }
 
         var alicePassword = "pass123";
-        var bobPassword = "123pass";
-
         var aliceHash = _passwordHasher.HashPassword(alicePassword);
+        var bobPassword = "123pass";
         var bobHash = _passwordHasher.HashPassword(bobPassword);
 
-        var users = new List<User>
-        {
-            new User { Email = "alice.org@event.com", PasswordHash = aliceHash, Username = "Alice" },
-            new User { Email = "bob.user@event.com", PasswordHash = bobHash, Username = "Bob" }
-        };
+        var alice = new User { Email = "alice.org@event.com", PasswordHash = aliceHash, Username = "Alice" };
+        var bob = new User { Email = "bob4321@event.com", PasswordHash = bobHash, Username = "Bob" };
 
-        _context.Users.AddRange(users);
+        _context.Users.AddRange(alice, bob);
         await _context.SaveChangesAsync();
 
         var events = new List<Event>
         {    new Event
             {
-                Id = 1,
-                HostId = 1,
+                HostId = alice.Id,
                 Title = "Annual Tech Conference",
                 Description = "Largest tech gathering of the year.",
                 DateTime = DateTime.UtcNow.AddDays(30),
@@ -51,8 +48,7 @@ public class AppDbContextSeeder
             },
             new Event
             {
-                Id = 2,
-                HostId = 1,
+                HostId = alice.Id,
                 Title = "Open Source Workshop",
                 Description = "Hands-on coding session for contributors.",
                 DateTime = DateTime.UtcNow.AddDays(45),
@@ -62,8 +58,7 @@ public class AppDbContextSeeder
             },
             new Event
             {
-                Id = 3,
-                HostId = 2,
+                HostId = bob.Id,
                 Title = "Local Book Club Meeting",
                 Description = "Discussion on classic literature.",
                 DateTime = DateTime.UtcNow.AddDays(15),
@@ -73,8 +68,7 @@ public class AppDbContextSeeder
             },
             new Event
             {
-                Id = 4,
-                HostId = 1,
+                HostId = alice.Id,
                 Title = "Private Team Dinner",
                 Description = "Team building event (Private)",
                 DateTime = DateTime.UtcNow.AddDays(10),
@@ -85,15 +79,16 @@ public class AppDbContextSeeder
         };
 
         _context.Events.AddRange(events);
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(); 
 
-        var eventParticipants = new List<EventParticipant>
-        {
-            new EventParticipant { EventId = 1, UserId = 1 },
-            new EventParticipant { EventId = 1, UserId = 2 },
-            new EventParticipant { EventId = 2, UserId = 1 },
-            new EventParticipant { EventId = 3, UserId = 2 }
-        };
+    var eventParticipants = new List<EventParticipant>
+    {
+        new EventParticipant { EventId = events[0].Id, UserId = alice.Id, JoinDate = DateTime.UtcNow },
+        new EventParticipant { EventId = events[0].Id, UserId = bob.Id, JoinDate = DateTime.UtcNow },
+        new EventParticipant { EventId = events[1].Id, UserId = alice.Id, JoinDate = DateTime.UtcNow },
+        new EventParticipant { EventId = events[2].Id, UserId = bob.Id, JoinDate = DateTime.UtcNow }
+    };
+
 
         _context.EventParticipants.AddRange(eventParticipants);
         await _context.SaveChangesAsync();

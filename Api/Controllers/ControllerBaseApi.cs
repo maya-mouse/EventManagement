@@ -12,10 +12,7 @@ public class ControllerBaseApi : ControllerBase
     protected int GetUserId()
     {
         var idClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (idClaim == null || !int.TryParse(idClaim, out int userId))
-        {
-            throw new UnauthorizedAccessException("Invalid user identifier in token");
-        }
+        int.TryParse(idClaim, out int userId);
         return userId;
     }
 }

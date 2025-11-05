@@ -15,7 +15,7 @@ public class JwtGenerator : IJwtGenerator
     public JwtGenerator(IConfiguration config)
     {
         _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:Key"] ??
-        "tttt_ii_a_yyyy_ssssss_kkk_tttt_ssssss_bb_llll_aaa_ccccccc_fff_ssssssss"));  
+        "PoCS3cReTK3y_f0r_EveNtWav3_Pr0oF_oF_c0ncEpT_S3cur1ty_512b1t_v3r1fy"));  
     }
     public string GenerateToken(int userId, string Email, string Username)
     {

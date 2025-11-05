@@ -93,8 +93,8 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddCors(opt =>
 {
- opt.AddPolicy("AllowAngularClient",builder => builder
- .WithOrigins("http://localhost:4200").AllowAnyHeader().AllowAnyMethod());       
+ opt.AddPolicy("AllowAll",builder => builder
+ .AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());       
 }
 );
 
@@ -107,9 +107,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 app.UseMiddleware<ErrorHandlingMiddleware>();
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 app.UseRouting();
-app.UseCors("AllowAngularClient");
+app.UseCors("AllowAll");
 app.UseAuthentication(); 
 app.UseAuthorization(); 
 app.MapControllers();

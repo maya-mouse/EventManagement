@@ -19,8 +19,7 @@ export class AuthService {
   public static readonly EMAIL_KEY = 'event_user_email';
   public static readonly USERNAME_KEY = 'event_username';
 
-  private apiUrl = `${environment.apiUrl}/Users`; // Припускаємо, що контролер називається UsersController
-
+  private apiUrl = `${environment.apiUrl}/Users`;
 
   private http = inject(HttpClient);
   private platformId = inject(PLATFORM_ID);
@@ -76,11 +75,12 @@ export class AuthService {
 
   register(dto: Register): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/register`, dto).pipe(
-      tap(res => {
-        if (res.token && res.email && res.username) {
-          this.setSession(res.token, res.email, res.username);
-        }
-      }),
+      tap(
+        //res => {
+       // if (res.token && res.email && res.username) {
+      //    this.setSession(res.token, res.email, res.username);
+     //   }}
+     ),
       catchError(error => {
         return throwError(() => error);
       })

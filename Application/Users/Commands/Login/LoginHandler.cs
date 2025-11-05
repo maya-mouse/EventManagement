@@ -14,9 +14,9 @@ IPasswordHasher passwordHasher, IJwtGenerator jwtGenerator): IRequestHandler<Log
 
         if (user == null)
         {
-            throw new UnauthorizedAccessException("Incorrect email or password"); 
+            throw new UnauthorizedAccessException("This user don't exists"); 
         }
-
+  
         if (!passwordHasher.VerifyPassword(request.Password, user.PasswordHash))
         {
              throw new UnauthorizedAccessException("Incorrect email or password");

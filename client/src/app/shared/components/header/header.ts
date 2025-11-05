@@ -12,7 +12,7 @@ import { Observable } from 'rxjs';
 })
 export class Header {
   private authService = inject(AuthService);
-  private router = inject(Router); // Додано Router для навігації
+  private router = inject(Router); 
 
   isLoggedIn$: Observable<boolean> = this.authService.isLoggedIn$;
   currentUserEmail$: Observable<string> = this.authService.currentUserEmail$;
