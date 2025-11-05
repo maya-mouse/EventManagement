@@ -1,0 +1,78 @@
+<div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8 p-10 bg-white shadow-xl rounded-lg border border-gray-100">
+        <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            Create new account
+        </h2>
+
+        <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="mt-8 space-y-6">
+            <div class="rounded-lg">
+
+
+                <div class="mb-4">
+                    <input type="text" formControlName="username" placeholder="Username"
+                        class="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-pink-600 focus:border-pink-600 sm:text-sm">
+                    @if (f['username'].invalid && f['username'].touched) {
+                    <div class="text-red-500 text-sm pt-1">
+                        @if (f['username'].errors?.['required']) { <p>Username is required</p> }
+                    </div>
+                    }
+                </div>
+
+
+                <div class="mb-4">
+                    <input type="email" formControlName="email" placeholder="Email"
+                        class="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-pink-600 focus:border-pink-600 sm:text-sm">
+                    @if (f['email'].invalid && f['email'].touched) {
+                    <div class="text-red-500 text-sm pt-1">
+                        @if (f['email'].errors?.['required']) { <p>Email is required</p> }
+                        @if (f['email'].errors?.['email']) { <p>Enter correct Email</p> }
+                    </div>
+                    }
+                </div>
+
+
+                <div class="mb-4">
+                    <input type="password" formControlName="password" placeholder="Password"
+                        class="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-pink-600 focus:border-pink-600 sm:text-sm">
+                    @if (f['password'].invalid && f['password'].touched) {
+                    <div class="text-red-500 text-sm pt-1">
+                        @if (f['password'].errors?.['required']) { <p>Password is required</p> }
+                        @if (f['password'].errors?.['minlength']) { <p>Password must be at least 6 characters long</p> }
+                    </div>
+                    }
+                </div>
+
+                <div>
+                    <input type="password" formControlName="confirmPassword" placeholder="Confirm password"
+                        class="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-pink-600 focus:border-pink-600 sm:text-sm">
+                    @if (f['confirmPassword'].invalid && f['confirmPassword'].touched) {
+                    <div class="text-red-500 text-sm pt-1">
+                        @if (f['confirmPassword'].errors?.['required']) { <p>Confirm password is required</p> }
+                        @if (f['confirmPassword'].errors?.['passwordsNotMatch']) { <p>Passwords do not match</p> }
+                    </div>
+                    }
+                </div>
+            </div>
+
+
+            @if (errorMessage) {
+            <div class="text-center text-red-600 font-medium bg-red-100 p-2 rounded-lg">
+                {{ errorMessage }}
+            </div>
+            }
+
+            <div>
+                <button type="submit" [disabled]="registerForm.invalid"
+                    class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-lg font-medium rounded-lg text-white bg-pink-600 hover:bg-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500 disabled:opacity-50 transition duration-150 shadow-md">
+                    Register
+                </button>
+            </div>
+
+            <div class="text-center text-sm pt-2">
+                <a routerLink="/login" class="font-medium text-pink-600 hover:text-pink-500">
+                    Already have an account? Log in
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
