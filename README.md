@@ -20,6 +20,15 @@
 
 ```
 
+## .env example
+
+POSTGRES_USER=user
+POSTGRES_PASSWORD=password_from_env_file
+POSTGRES_DB=eventdb
+DB_PORT=5432
+
+JWT_SECRET_KEY="PoCS3cReTK3y_f0r_EveNtWav3_Pr0oF_oF_c0ncEpT_S3cur1ty_512b1t_v3r1fy"
+
 ## Access to services
 
 | Service   | URL                         |
