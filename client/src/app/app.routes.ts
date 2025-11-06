@@ -6,6 +6,7 @@ import { EventDetailsComponent } from './modules/events/components/event-details
 import { MyEventsCalendarComponent } from './modules/events/components/my-events-calendar/my-events-calendar';
 import { EventFormComponent } from './modules/events/components/event-form/event-form';
 import { authGuard } from './core/guards/auth.guard';
+import { ErrorPageComponent } from './shared/components/error-page/error-page';
 
 export const routes: Routes = [
     { path: '', redirectTo: '/events', pathMatch: 'full' },
@@ -15,5 +16,8 @@ export const routes: Routes = [
     { path: 'events', component: EventsListComponent },
     { path: 'events/:id', component: EventDetailsComponent, canActivate: [authGuard] },
     { path: 'register', component: Register },
-    { path: 'login', component: Login }
+    { path: 'login', component: Login },
+    { path: '404', component: ErrorPageComponent },
+    { path: '500', component: ErrorPageComponent},
+    { path: '**',  redirectTo: '/404' }
 ];

@@ -20,12 +20,11 @@ export class EventDetailsComponent implements OnInit, OnDestroy {
   public router = inject(Router);
 
   event$!: Observable<EventDetail | null>;
-  private authSubscription!: Subscription; // Для керування підпискою
-
+  private authSubscription!: Subscription; 
   public isLoading: boolean = true;
   public errorMessage: string | null = null;
   public isLoggedIn$: Observable<boolean> = this.authService.isLoggedIn$;
-  public isLoggedIn: boolean = false; // Поле для синхронної перевірки
+  public isLoggedIn: boolean = false; 
 
   ngOnInit(): void {
     this.authSubscription = this.isLoggedIn$.subscribe(status => {
