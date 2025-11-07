@@ -27,6 +27,7 @@ POSTGRES_USER=user
 POSTGRES_PASSWORD=password_from_env_file
 POSTGRES_DB=eventdb
 DB_PORT=5432
+```
 
 ```
 
@@ -49,6 +50,7 @@ JWT_SECRET_KEY="PoCS3cReTK3y_f0r_EveNtWav3_Pr0oF_oF_c0ncEpT_S3cur1ty_512b1t_v3r1
 ## Key Features Implemented
 
 **- Auth** : Registration / Login (JWT, BCrypt)
+
 **- Events** :
  - Creating, editing, deleting
  - POST /events, PATCH /events/{id}, DELETE /events/{id} Join / Leave

@@ -36,7 +36,7 @@ export class Login {
           },
           error: (err) => {
             this.errorMessage = 'Login error. Please check your credentials';
-            console.error(err);
+            console.error(err.errorMessage);
           }
         });
     }
