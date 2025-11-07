@@ -4,7 +4,7 @@ import { CommonModule, DatePipe, AsyncPipe } from '@angular/common';
 import { EventService } from '../../../../core/services/event.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { EventDetail } from '../../../../core/models/event.detail';
-import { Observable, switchMap, catchError, of, tap, filter, Subscription } from 'rxjs'; // Додано Subscription
+import { Observable, switchMap, catchError, of, tap, filter, Subscription, BehaviorSubject } from 'rxjs'; // Додано Subscription
 
 @Component({
   selector: 'app-event-details',
@@ -19,12 +19,13 @@ export class EventDetailsComponent implements OnInit, OnDestroy {
   private authService = inject(AuthService);
   public router = inject(Router);
 
+  private eventIdSubject = new BehaviorSubject<number | null>(null);
   event$!: Observable<EventDetail | null>;
-  private authSubscription!: Subscription; 
+  private authSubscription!: Subscription;
   public isLoading: boolean = true;
   public errorMessage: string | null = null;
   public isLoggedIn$: Observable<boolean> = this.authService.isLoggedIn$;
-  public isLoggedIn: boolean = false; 
+  public isLoggedIn: boolean = false;
 
   ngOnInit(): void {
     this.authSubscription = this.isLoggedIn$.subscribe(status => {
@@ -33,13 +34,20 @@ export class EventDetailsComponent implements OnInit, OnDestroy {
 
 
     this.event$ = this.route.paramMap.pipe(
+
       filter(params => params.has('id')),
-      switchMap(params => {
+      tap(params => {
         const eventId = Number(params.get('id'));
+        this.eventIdSubject.next(eventId);
+      }),
+
+      switchMap(() => this.eventIdSubject),
+      filter(id => id !== null),
+      switchMap(eventId => {
         this.isLoading = true;
         this.errorMessage = null;
 
-        return this.eventService.getEventDetails(eventId).pipe(
+        return this.eventService.getEventDetails(eventId!).pipe(
           tap(() => this.isLoading = false),
           catchError(error => {
             this.isLoading = false;
@@ -47,11 +55,8 @@ export class EventDetailsComponent implements OnInit, OnDestroy {
             return of(null as EventDetail | null);
           })
         );
-
-
       })
     );
-    console.log(this.event$)
   }
 
   ngOnDestroy(): void {
@@ -66,13 +71,22 @@ export class EventDetailsComponent implements OnInit, OnDestroy {
       return;
     }
     this.eventService.joinEvent(event.id)
-      .subscribe({ next: () => this.updateLocalState(event, true) });
+      .subscribe({
+        next: () => {
+          this.eventIdSubject.next(event.id);
+        }
+      });
   }
 
   onLeave(event: EventDetail): void {
     if (!this.isLoggedIn) return;
     this.eventService.leaveEvent(event.id)
-      .subscribe({ next: () => this.updateLocalState(event, false) });
+      .subscribe({
+        next: () => {
+          this.eventIdSubject.next(event.id);
+        }
+
+      });
   }
 
   onDelete(eventId: number): void {
@@ -89,10 +103,5 @@ export class EventDetailsComponent implements OnInit, OnDestroy {
           }
         });
     }
-  }
-  private updateLocalState(event: EventDetail, joined: boolean): void {
-    event.isJoined = joined;
-    event.participantsCount += joined ? 1 : -1;
-    event.isFull = event.capacity !== null && event.participantsCount >= event.capacity!;
   }
 }
