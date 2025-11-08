@@ -1,6 +1,15 @@
 <div class="py-8 px-4 sm:px-6 lg:px-8">
-    <h1 class="text-4xl font-bold text-gray-900 mt-4 mb-10">Find your events</h1>
+    <h1 class="text-4xl font-bold text-gray-900 mt-4 mb-2">Find your events</h1>
+    <p class="text-gray-500 mb-6">Explore public events happening around you</p>
 
+    <div class="mb-10 relative">
+        <input type="text" [formControl]="searchControl" placeholder="Search events by title, description or location..."
+               class="w-full max-w-2xl px-4 py-3 pl-10 placeholder-gray-400 border border-gray-300 rounded-lg focus:ring-pink-600 focus:border-pink-600 shadow-sm transition duration-150">
+        
+        <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        </svg>
+    </div>
     @if (isLoading) {
     <div class="text-center py-10">
         <p class="text-pink-600">Loading events...</p>
@@ -20,6 +29,7 @@
                 </h3>
                 <p class="text-gray-600 text-sm mb-4 h-12 overflow-hidden">{{ event.description }}</p>
                 <div class="space-y-3 pt-3 border-t border-gray-100 mt-4 text-sm">
+                    
                     <p class="flex items-start text-gray-700">
                         <span class="text-gray-400 mr-3 mt-0.5">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
@@ -30,26 +40,21 @@
                         </span>
                         @if (event.dateTime) {
                         <span class="flex flex-col">
-                            {{ event.dateTime | date:'MMM d, yyyy' }}
+                            {{ event.dateTime | date:'dd.MM.yyyy' }}
+                            <span class="text-pink-600 flex items-center text-xs mt-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                    stroke="currentColor" class="size-4 mr-1">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                </svg>
+                                {{ event.dateTime | date:'HH:mm' }}
+                            </span>
                         </span>
                         } @else {
                         <span class="ml-2">-</span>
                         }
                     </p>
-                    <p>
-                        @if (event.dateTime) {
-                        <span class="text-pink-600 flex items-center mt-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                                stroke="currentColor" class="size-4 mr-1">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                            </svg>
-                            {{ event.dateTime | date:'HH:mm' }}
-                        </span>
-                        }@else {
-                        <span class="ml-2">-</span>
-                        }
-                    </p>
+                    
                     <p class="flex items-center text-gray-700">
                         <span class="text-gray-400 mr-3">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
@@ -60,6 +65,7 @@
                         </span>
                         {{ event.location }}
                     </p>
+                    
                     <p class="flex items-center text-gray-700">
                         <span class="text-gray-400 mr-3">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
@@ -74,38 +80,35 @@
                     </p>
                 </div>
             </div>
+            
             <div class="p-4 border-t border-gray-200">
                 @if (event.isFull && !event.isJoined) {
                 <span
                     class="w-full block text-center py-3 bg-gray-300 text-gray-700 font-bold rounded-lg cursor-not-allowed shadow-md">
                     Full
                 </span>
-                }
-
-                @else {
-                @if (isLoggedIn) {
-                <div class="flex gap-4">
-                    @if (!event.isJoined) {
-                    <button (click)="onJoin(event); $event.stopPropagation()"
-                        class="grow-[2] py-3 bg-pink-600 text-white font-bold rounded-lg hover:bg-pink-700 transition duration-150 shadow-md">
-                        Join Event
+                } @else {
+                    @if (isLoggedIn) {
+                    <div class="flex gap-4">
+                        @if (!event.isJoined) {
+                        <button (click)="onJoin(event); $event.stopPropagation()"
+                            class="grow-[2] py-3 bg-pink-600 text-white font-bold rounded-lg hover:bg-pink-700 transition duration-150 shadow-md">
+                            Join Event
+                        </button>
+                        }
+                        @if (event.isJoined) {
+                        <button (click)="onLeave(event); $event.stopPropagation()"
+                            class="grow py-3 bg-red-500 text-white font-bold rounded-lg hover:bg-red-600 transition duration-150 shadow-md">
+                            Leave
+                        </button>
+                        }
+                    </div>
+                    } @else {
+                    <button (click)="router.navigate(['/login'])"
+                        class="w-full py-3 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 transition duration-150 shadow-md">
+                        Join Event (Log in required)
                     </button>
                     }
-                    @if (event.isJoined) {
-                    <button (click)="onLeave(event); $event.stopPropagation()"
-                        class="grow py-3 bg-red-500 text-white font-bold rounded-lg hover:bg-red-600 transition duration-150 shadow-md">
-                        Leave
-                    </button>
-                    }
-                </div>
-                }
-
-                @else {
-                <button (click)="router.navigate(['/login'])"
-                    class="w-full py-3 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 transition duration-150 shadow-md">
-                    Join Event (Log in required)
-                </button>
-                }
                 }
             </div>
         </div>
