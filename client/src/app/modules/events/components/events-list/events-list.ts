@@ -1,16 +1,18 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { Observable, BehaviorSubject, of, catchError, tap, map } from 'rxjs'; // Додано map
+import { Observable, BehaviorSubject, of, catchError, tap, map } from 'rxjs';
 import { Router } from '@angular/router';
 import { CommonModule, DatePipe, AsyncPipe } from '@angular/common';
 import { EventService } from '../../../../core/services/event.service';
 import { AuthService } from '../../../../core/services/auth.service';
-import { Event } from '../../../../core/models/event';
+import { Event } from '../../../../core/models/event'; 
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators'; 
 
 @Component({
   selector: 'app-events-list',
   templateUrl: './events-list.html',
   standalone: true,
-  imports: [CommonModule, AsyncPipe, DatePipe]
+  imports: [CommonModule, AsyncPipe, DatePipe, ReactiveFormsModule]
 })
 export class EventsListComponent implements OnInit {
 
@@ -18,42 +20,75 @@ export class EventsListComponent implements OnInit {
   private authService = inject(AuthService);
   public router = inject(Router);
 
+
+  private allEvents: Event[] = []; 
   private eventsSubject = new BehaviorSubject<Event[]>([]);
   public events$: Observable<Event[]> = this.eventsSubject.asObservable();
 
   public isLoading: boolean = true;
-
   public isLoggedIn$: Observable<boolean> = this.authService.isLoggedIn$;
   public isLoggedIn: boolean = false;
+
+
+  searchControl = new FormControl('');
 
   ngOnInit(): void {
     this.isLoggedIn$.subscribe(status => this.isLoggedIn = status);
     this.loadEvents();
+    
+
+    this.searchControl.valueChanges.pipe(
+        debounceTime(300), 
+        distinctUntilChanged(),
+        tap(term => this.applyFilter(term)) 
+    ).subscribe();
   }
 
   loadEvents(): void {
     this.isLoading = true;
 
-    this.eventService.getPublicEvents()
+
+    this.eventService.getPublicEvents() 
       .pipe(
         tap(() => this.isLoading = false),
         catchError(error => {
-          console.log(error)
           this.isLoading = false;
           return of([]);
         }),
-        map((events: Event[]) => events)
       )
       .subscribe((events: Event[]) => {
 
-        const eventsWithFullStatus = events.map(event => {
+        this.allEvents = events.map(event => {
+          const capacity = event.capacity ?? 0;
+          const participantsCount = event.participantsCount ?? 0;
+          
           return {
             ...event,
             isJoined: event.isJoined ?? false,
+            isFull: capacity > 0 && participantsCount >= capacity,
           } as Event;
         });
-        this.eventsSubject.next(eventsWithFullStatus);
+        
+
+        this.eventsSubject.next(this.allEvents); 
       });
+  }
+
+  applyFilter(searchTerm: string | null): void {
+    const term = (searchTerm || '').toLowerCase();
+    
+    if (!term) {
+        this.eventsSubject.next(this.allEvents); 
+        return;
+    }
+
+    const filtered = this.allEvents.filter(event => 
+        event.title.toLowerCase().includes(term) ||
+        event.description.toLowerCase().includes(term) ||
+        event.location.toLowerCase().includes(term)
+    );
+    
+    this.eventsSubject.next(filtered); 
   }
 
 
@@ -62,7 +97,6 @@ export class EventsListComponent implements OnInit {
       this.router.navigate(['/login']);
       return;
     }
-
     this.eventService.joinEvent(event.id).subscribe({
       next: () => this.updateEventParticipation(event.id, true),
       error: (err) => console.error('Failed to join event:', err)
@@ -85,21 +119,25 @@ export class EventsListComponent implements OnInit {
   }
 
   private updateEventParticipation(eventId: number, joined: boolean): void {
-
-    const currentEvents = this.eventsSubject.getValue();
-    const updatedEvents = currentEvents.map(e => {
-      if (e.id === eventId) {
-        const newCount = joined ? e.participantsCount + 1 : e.participantsCount - 1;
-        return {
-          ...e,
-          isJoined: joined,
-          participantsCount: newCount,
-          isFull: e.capacity !== null && newCount >= e.capacity
-        } as Event;
-      }
-      return e;
-    });
-    this.eventsSubject.next(updatedEvents);
+    
+    const updateArray = (arr: Event[]): Event[] => {
+        return arr.map(e => {
+            if (e.id === eventId) {
+                const newCount = joined ? e.participantsCount + 1 : e.participantsCount - 1;
+                return {
+                    ...e,
+                    isJoined: joined,
+                    participantsCount: newCount,
+                    isFull: e.capacity !== null && newCount >= e.capacity
+                } as Event;
+            }
+            return e;
+        });
+    };
+    
+  
+    this.allEvents = updateArray(this.allEvents);
+    this.eventsSubject.next(updateArray(this.eventsSubject.getValue())); 
   }
 
   onViewDetails(eventId: number): void {

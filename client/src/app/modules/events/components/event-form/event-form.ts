@@ -11,7 +11,7 @@ import { CreateEvent } from '../../../../core/models/create.event';
   selector: 'app-event-form',
   templateUrl: './event-form.html',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, AsyncPipe]
+  imports: [CommonModule, ReactiveFormsModule]
 })
 export class EventFormComponent implements OnInit {
 

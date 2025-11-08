@@ -21,7 +21,7 @@
             <label for="title" class="block text-sm font-medium text-gray-700">Event Title <span
                     class="text-red-500">*</span></label>
             <input id="title" type="text" formControlName="title" placeholder="e.g., Annual Tech Conference"
-                class="mt-1 block w-full border border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500 p-3">
+                class="mt-1 block w-full placeholder-gray-400 border border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500 p-3">
             @if (f['title'].invalid && f['title'].touched) {
             <div class="text-red-500 text-sm mt-1">Title is required.</div>
             }
@@ -31,7 +31,7 @@
             <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
             <textarea id="description" formControlName="description" rows="4"
                 placeholder="Detailed description of the event..."
-                class="mt-1 block w-full border border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500 p-3"></textarea>
+                class="mt-1 block w-full placeholder-gray-400 border border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500 p-3"></textarea>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -39,7 +39,7 @@
                 <label for="dateTime" class="block text-sm font-medium text-gray-700">Date & Time <span
                         class="text-red-500">*</span></label>
                 <input id="dateTime" type="datetime-local" formControlName="dateTime"
-                    class="mt-1 block w-full border border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500 p-3">
+                    class="mt-1 block w-full placeholder-gray-400 border border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500 p-3">
                 @if (f['dateTime'].invalid && f['dateTime'].touched) {
                 <div class="text-red-500 text-sm mt-1">
                     @if (f['dateTime'].errors?.['required']) { <p>Date & Time are required.</p> }
@@ -52,7 +52,7 @@
                 <label for="location" class="block text-sm font-medium text-gray-700">Location <span
                         class="text-red-500">*</span></label>
                 <input id="location" type="text" formControlName="location" placeholder="e.g., Zoom / City Centre"
-                    class="mt-1 block w-full border border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500 p-3">
+                    class="mt-1 block w-full placeholder-gray-400 border border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500 p-3">
                 @if (f['location'].invalid && f['location'].touched) {
                 <div class="text-red-500 text-sm mt-1">Location is required.</div>
                 }
@@ -63,7 +63,7 @@
             <div>
                 <label for="capacity" class="block text-sm font-medium text-gray-700">Capacity (Optional)</label>
                 <input id="capacity" type="number" formControlName="capacity" placeholder="Leave empty for unlimited"
-                    class="mt-1 block w-full border border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500 p-3">
+                    class="mt-1 block w-full placeholder-gray-400 border border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500 p-3">
                 @if (f['capacity'].errors?.['min'] && f['capacity'].touched) {
                 <div class="text-red-500 text-sm mt-1">Capacity must be a positive number.</div>
                 }
