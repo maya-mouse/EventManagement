@@ -13,11 +13,13 @@ public class EventsController(IMediator mediator) : ControllerBaseApi
 
     [HttpGet]
     [AllowAnonymous]
-    public async Task<ActionResult<List<EventDto>>> GetPublicEvents()
+    public async Task<ActionResult<List<EventDto>>> GetPublicEvents([FromQuery] string? searchTerm,
+        [FromQuery] List<string>? tagNames)
     {
     
     var userId = GetUserId();
-    var query = new GetPublicEventsQuery(UserId: userId);
+    var query = new GetPublicEventsQuery(UserId: userId, SearchTerm: searchTerm,
+    TagNames: tagNames);
     
     var result = await _mediator.Send(query);
     return Ok(result);

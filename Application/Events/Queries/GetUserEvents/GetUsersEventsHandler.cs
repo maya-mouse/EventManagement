@@ -1,6 +1,7 @@
 using Application.Interfaces.Repositories;
 using Application.Events.DTOs;
 using MediatR;
+using Application.Tags.DTOs;
 
 namespace Application.Events.Queries;
 
@@ -12,7 +13,7 @@ public class GetUserEventsHandler(IEventRepository eventRepository)
 
         var joinedEvents = await eventRepository.GetUserEventsAsync(request.UserId, cancellationToken);
 
-        var organizedEvents = await eventRepository.GetUserEventsAsync(request.UserId, cancellationToken); // ПОТРІБЕН НОВИЙ МЕТОД РЕПОЗИТОРІЮ
+        var organizedEvents = await eventRepository.GetUserEventsAsync(request.UserId, cancellationToken); 
 
         var allEvents = joinedEvents.Union(organizedEvents).ToList();
 
@@ -21,7 +22,12 @@ public class GetUserEventsHandler(IEventRepository eventRepository)
             Id = e.Id,
             Title = e.Title,
             DateTime = e.DateTime,
-            IsOrganizer = e.HostId == request.UserId
+            IsOrganizer = e.HostId == request.UserId,
+            Tags = e.EventTags.Select(et => new TagDto 
+            {
+                Id = et.Tag.Id, 
+                Name = et.Tag.Name 
+            }).ToList()
         }).ToList();
 
         return dtos;

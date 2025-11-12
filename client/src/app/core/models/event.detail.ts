@@ -1,4 +1,5 @@
 import { ParticipantModel } from "./participant";
+import { Tag } from "./tag";
 
 export interface EventDetail {
     id: number;
@@ -13,9 +14,10 @@ export interface EventDetail {
     hostId: number; 
     
     participants: ParticipantModel[];
-   
+    tags: Tag[];
     isJoined: boolean;
     isOrganizer: boolean; 
+
     
   
     participantsCount: number;

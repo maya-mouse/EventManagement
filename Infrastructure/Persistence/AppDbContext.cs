@@ -11,7 +11,10 @@ public class AppDbContext : DbContext
     }
     public DbSet<User> Users { get; set; }
     public DbSet<Event> Events { get; set; }
+
+    public DbSet<Tag> Tags { get; set; }
     public DbSet<EventParticipant> EventParticipants { get; set; }
+    public DbSet<EventTag> EventTags { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -19,10 +22,10 @@ public class AppDbContext : DbContext
            .HasOne(e => e.Host)
            .WithMany(u => u.HostedEvents)
            .HasForeignKey(e => e.HostId)
-           .OnDelete(DeleteBehavior.Restrict);
+           .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<EventParticipant>()
-            .HasKey(ep => new { ep.EventId, ep.UserId }); 
+            .HasKey(ep => new { ep.EventId, ep.UserId });
 
         modelBuilder.Entity<EventParticipant>()
             .HasOne(ep => ep.Event)
@@ -34,12 +37,30 @@ public class AppDbContext : DbContext
             .WithMany(u => u.Participations)
             .HasForeignKey(ep => ep.UserId);
 
-        
+
         modelBuilder.Entity<User>(entity =>
         {
-            entity.HasIndex(u => u.Username).IsUnique(); 
-            entity.HasIndex(u => u.Email).IsUnique(); 
+            entity.HasIndex(u => u.Username).IsUnique();
+            entity.HasIndex(u => u.Email).IsUnique();
         });
+
+        modelBuilder.Entity<EventTag>()
+            .HasKey(et => new { et.EventId, et.TagId });
+
+        modelBuilder.Entity<Tag>(entity =>
+        {
+            entity.HasIndex(t => t.Name).IsUnique();
+        });
+
+        modelBuilder.Entity<EventTag>()
+           .HasOne(et => et.Event)
+           .WithMany(e => e.EventTags)
+           .HasForeignKey(et => et.EventId);
+
+        modelBuilder.Entity<EventTag>()
+           .HasOne(et => et.Tag)
+           .WithMany(t => t.EventTags)
+           .HasForeignKey(et => et.TagId);
 
     }
 }

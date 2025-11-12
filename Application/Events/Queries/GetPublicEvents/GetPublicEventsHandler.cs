@@ -11,7 +11,10 @@ public class GetPublicEventsHandler(IEventRepository eventRepository, IMapper ma
     public async Task<List<EventDto>> Handle(GetPublicEventsQuery request, CancellationToken cancellationToken)
     {
 
-        var events = await eventRepository.GetPublicEventsAsync(cancellationToken); 
+        var events = await eventRepository.GetPublicEventsAsync(
+            request.SearchTerm,
+            request.TagNames,
+            cancellationToken); 
         var eventDtos = mapper.Map<List<EventDto>>(events);
 
         if (request.UserId.HasValue)

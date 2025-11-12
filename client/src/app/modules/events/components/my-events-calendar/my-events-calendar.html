@@ -85,12 +85,15 @@
 
                 @if (day.events.length > 0) {
                 @for (event of day.events; track event.id) {
-                <div (click)="onEventClick(event.id); $event.stopPropagation()"
-                    [class.bg-purple-100]="event.isOrganizer" [class.text-purple-700]="event.isOrganizer"
-                    [class.bg-blue-100]="!event.isOrganizer" [class.text-blue-700]="!event.isOrganizer"
-                    class="text-xs rounded-sm px-1 py-0.5 mt-0.5 truncate hover:shadow transition duration-100 border border-transparent hover:border-pink-300">
-                    <span class="font-bold">{{ event.dateTime | date:'HH:mm' }}</span> - {{ event.title }}
+                
+                @if (event.tags.length > 0; as firstTag) {
+                @let color = getTagColorClass(event.tags[0].name);
+                
+                <div (click)="onEventClick(event.id); $event.stopPropagation()" [class]="color.bg + ' ' + color.text" 
+                    class="text-xs rounded-sm px-1 py-0.5 mt-0.5 truncate hover:shadow transition duration-100 border border-transparent">
+                    <span class="font-bold">{{ event.dateTime | date:'shortTime' }}</span> - {{ event.title }}
                 </div>
+                }
                 }
                 }
             </div>

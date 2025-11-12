@@ -60,6 +60,7 @@ builder.Services.AddScoped<IJwtGenerator, JwtGenerator>();
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IEventRepository, EventRepository>();
+builder.Services.AddScoped<ITagRepository, TagRepository>();
 
 builder.Services.AddDbContext<AppDbContext>(opt =>
 {

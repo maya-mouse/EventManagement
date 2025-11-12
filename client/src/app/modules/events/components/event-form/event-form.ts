@@ -1,148 +1,193 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormControl } from '@angular/forms'; // Додано FormControl
 import { CommonModule, AsyncPipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EventService } from '../../../../core/services/event.service';
 import { EventDetail } from '../../../../core/models/event.detail';
-import { Observable, filter, tap } from 'rxjs';
+import { Observable, filter, tap, map, combineLatest, of, catchError } from 'rxjs';
 import { CreateEvent } from '../../../../core/models/create.event';
+import { Tag } from '../../../../core/models/tag';
 
 @Component({
-  selector: 'app-event-form',
-  templateUrl: './event-form.html',
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule]
+ selector: 'app-event-form',
+ templateUrl: './event-form.html',
+ standalone: true,
+ imports: [CommonModule, ReactiveFormsModule, AsyncPipe]
 })
 export class EventFormComponent implements OnInit {
 
-  private fb = inject(FormBuilder);
-  private router = inject(Router);
-  private route = inject(ActivatedRoute);
-  private eventService = inject(EventService);
+ private fb = inject(FormBuilder);
+ private router = inject(Router);
+ private route = inject(ActivatedRoute);
+ private eventService = inject(EventService);
 
-  eventForm!: FormGroup;
-  isEditMode: boolean = false;
-  eventId: number | null = null;
-  isLoading: boolean = false;
-  errorMessage: string | null = null;
+ eventForm!: FormGroup;
+ isEditMode: boolean = false;
+ eventId: number | null = null;
+ isLoading: boolean = false;
+ errorMessage: string | null = null;
+  
 
-  ngOnInit(): void {
-    this.initForm();
+ public availableTags$: Observable<Tag[]> = this.eventService.getAvailableTags();
+ public selectedTagNames: string[] = []; 
+public newTagControl = new FormControl('');
 
-    this.route.paramMap.pipe(
-      filter(params => params.has('id')),
-      tap(params => {
-        this.eventId = Number(params.get('id'));
-        this.isEditMode = true;
-        this.loadEventData(this.eventId!);
-      })
+  tagsControl: FormControl = new FormControl<string[]>([]);
+
+
+ ngOnInit(): void {
+ this.initForm();
+    
+
+ this.route.paramMap.pipe(
+ filter(params => params.has('id')),
+ tap(params => {
+ this.eventId = Number(params.get('id'));
+ this.isEditMode = true;
+ this.loadEventData(this.eventId!);
+ })
+ ).subscribe();
+ }
+
+ initForm(): void {
+ this.eventForm = this.fb.group({
+ title: ['', [Validators.required, Validators.maxLength(100)]],
+ description: [''],
+ dateTime: ['', [Validators.required]],
+ location: ['', [Validators.required, Validators.maxLength(200)]],
+ capacity: [null, [Validators.min(1)]],
+ isPublic: [true],
+
+      tagNames: [[] as string[]] 
+ });
+ }
+
+ loadEventData(id: number): void {
+ this.isLoading = true;
+
+    combineLatest([
+        this.eventService.getEventDetails(id),
+        this.availableTags$
+    ]).pipe(
+        tap(([event, availableTags]) => {
+            this.eventForm.patchValue({
+                title: event.title,
+                description: event.description,
+                dateTime: this.formatDateForInput(event.dateTime),
+                location: event.location,
+                capacity: event.capacity,
+                isPublic: event.isPublic,
+            });
+            
+
+            const currentTagNames = event.tags.map(t => t.name);
+            this.eventForm.get('tagNames')?.setValue(currentTagNames);
+            this.selectedTagNames = currentTagNames; 
+            
+            this.isLoading = false;
+        }),
+        catchError((err) => {
+            this.errorMessage = 'Failed to load event for editing.';
+            this.isLoading = false;
+            return of(null);
+        })
     ).subscribe();
-  }
+  }
 
-  initForm(): void {
-    this.eventForm = this.fb.group({
-      title: ['', [Validators.required, Validators.maxLength(100)]],
-      description: [''],
-      dateTime: ['', [Validators.required]], 
-      location: ['', [Validators.required, Validators.maxLength(200)]],
-      capacity: [null, [Validators.min(1)]], 
-      isPublic: [true] 
-    });
-  }
 
-  loadEventData(id: number): void {
-    this.isLoading = true;
-    this.eventService.getEventDetails(id).subscribe({
-      next: (event: EventDetail) => {
+  onTagCheckboxChange(tagName: string, isChecked: boolean): void {
+      const currentTags = this.eventForm.get('tagNames')!.value as string[];
 
-        this.eventForm.patchValue({
-          title: event.title,
-          description: event.description,
-          dateTime: this.formatDateForInput(event.dateTime),
-          location: event.location,
-          capacity: event.capacity,
-          isPublic: event.isPublic
-        });
-        this.isLoading = false;
-      },
-      error: (err) => {
-        this.errorMessage = 'Failed to load event for editing.';
-        this.isLoading = false;
-        console.error(err);
+      if (isChecked) {
+          this.eventForm.get('tagNames')?.setValue([...currentTags, tagName]);
+      } else {
+          const updatedTags = currentTags.filter(t => t !== tagName);
+          this.eventForm.get('tagNames')?.setValue(updatedTags);
       }
-    });
+
+      this.selectedTagNames = this.eventForm.get('tagNames')!.value;
   }
-
-  private formatDateForInput(date: Date | string): string {
-    if (!date) return '';
-
+  
+ private formatDateForInput(date: Date | string): string {
+ if (!date) return '';
     let dateString = date.toString();
-
     if (typeof date === 'string' && !dateString.endsWith('Z') && !dateString.includes('+')) {
-      dateString += 'Z';
-    }
+ dateString += 'Z';
+ }
+ const d = new Date(dateString);
+ if (isNaN(d.getTime())) {
+ return '';
+ }
+ const offset = d.getTimezoneOffset() * 60000;
+ const localISOTime = new Date(d.getTime() - offset).toISOString().slice(0, 16);
+ return localISOTime;
+ }
 
-    const d = new Date(dateString);
+ onSubmit(): void {
+ this.errorMessage = null;
+ if (this.eventForm.invalid) {
+ this.eventForm.markAllAsTouched();
+ return;
+ }
 
-    if (isNaN(d.getTime())) {
-      console.error("DEBUG: Date is Invalid. Check backend format:", date);
-      this.errorMessage = 'Invalid date format received from server.';
-      return '';
-    }
+ this.isLoading = true;
+    
+ const formValue = this.eventForm.value;
+ const payload: CreateEvent = {
+ ...formValue,
+ dateTime: new Date(formValue.dateTime),
+ };
 
-    const offset = d.getTimezoneOffset() * 60000;
-    const localISOTime = new Date(d.getTime() - offset).toISOString().slice(0, 16);
+ const action$: Observable<any> = this.isEditMode
+ ? this.eventService.updateEvent(this.eventId!, payload)
+ : this.eventService.createEvent(payload);
 
-    return localISOTime;
-  }
+ action$.subscribe({
+ next: (res) => {
+ this.isLoading = false;
 
-  onSubmit(): void {
-    this.errorMessage = null;
-    if (this.eventForm.invalid) {
-      this.eventForm.markAllAsTouched();
-      return;
-    }
+ let newId: number | null = null;
+ if (this.isEditMode) {
+ newId = this.eventId;
+ } else if (res && typeof res.id === 'number') {
+ newId = res.id;
+ } 
 
-    this.isLoading = true;
-    const formValue = this.eventForm.value;
-    const payload: CreateEvent = {
-      ...formValue,
-      dateTime: new Date(formValue.dateTime)
-    };
+ if (newId) {
+ this.router.navigate(['/events', newId]); 
+ } else {
+ this.router.navigate(['/events']);
+ }
+ },
+ error: (err) => {
+ this.errorMessage = this.isEditMode ? 'Failed to update event.' : 'Failed to create event.';
+ this.isLoading = false;
+ console.error(err);
+ }
+ });
+ }
 
-    const action$: Observable<any> = this.isEditMode
-      ? this.eventService.updateEvent(this.eventId!, payload) 
-      : this.eventService.createEvent(payload);            
-
-    action$.subscribe({
-      next: (res) => {
-        this.isLoading = false; 
-
-        let newId: number | null = null;
-
-        if (this.isEditMode) {
-          newId = this.eventId;
-        } else if (res && typeof res.id === 'number') {
-
-          newId = res.id;
-        } else if (typeof res === 'number') {
-
-          newId = res;
+ addCustomTag(): void {
+    const newTagName = (this.newTagControl.value || '').trim();
+    
+    if (newTagName && newTagName.length > 0) {
+        const tagNamesControl = this.eventForm.get('tagNames');
+        const currentTags = tagNamesControl!.value as string[];
+        
+        if (currentTags.length >= 5) {
+            this.errorMessage = 'Maximum 5 tags are allowed per event.';
+            return;
         }
 
-        if (newId) {
-          this.router.navigate(['/events', newId]); 
-        } else {
-
-          this.router.navigate(['/events']);
+        if (!currentTags.map(t => t.toLowerCase()).includes(newTagName.toLowerCase())) {
+            
+            tagNamesControl!.setValue([...currentTags, newTagName]);
+            tagNamesControl!.markAsDirty();
+            
+            this.newTagControl.setValue('');
+            this.errorMessage = null; 
         }
-      },
-      error: (err) => {
-        this.errorMessage = this.isEditMode ? 'Failed to update event.' : 'Failed to create event.';
-        this.isLoading = false;
-        console.error(err);
-      }
-    });
-  }
-  get f() { return this.eventForm.controls; }
+    }
+}
+ get f() { return this.eventForm.controls; }
 }

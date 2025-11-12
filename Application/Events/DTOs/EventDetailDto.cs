@@ -1,3 +1,5 @@
+using Application.Tags.DTOs;
+
 namespace Application.Events.DTOs;
 
 public class EventDetailDto
@@ -14,6 +16,8 @@ public class EventDetailDto
     public int HostId { get; set; }
 
     public List<ParticipantDto> Participants { get; set; } = new List<ParticipantDto>();
+    public List<TagDto> Tags { get; set; } = new List<TagDto>();
+
 
     public bool IsJoined { get; set; }
     public bool IsOrganizer { get; set; }
