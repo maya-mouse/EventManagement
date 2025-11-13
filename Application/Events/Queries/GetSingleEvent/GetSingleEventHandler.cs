@@ -14,7 +14,6 @@ public class GetSingleEventHandler(IEventRepository eventRepository, IMapper map
 
         if (@event is null)
         {
-
             throw new Exception("Event not found"); 
         }
         

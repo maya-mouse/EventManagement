@@ -2,6 +2,7 @@ using Application.Events.Commands;
 using FluentValidation;
 
 namespace Application.Events.Validators;
+
 public class CreateEventCommandValidator : AbstractValidator<CreateEventCommand>
 {
     public CreateEventCommandValidator()

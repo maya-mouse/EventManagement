@@ -1,10 +1,10 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormControl } from '@angular/forms'; // Додано FormControl
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormControl } from '@angular/forms';
 import { CommonModule, AsyncPipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EventService } from '../../../../core/services/event.service';
 import { EventDetail } from '../../../../core/models/event.detail';
-import { Observable, filter, tap, map, combineLatest, of, catchError } from 'rxjs';
+import { Observable, filter, tap, map, combineLatest, of, catchError, BehaviorSubject } from 'rxjs';
 import { CreateEvent } from '../../../../core/models/create.event';
 import { Tag } from '../../../../core/models/tag';
 
@@ -28,7 +28,9 @@ export class EventFormComponent implements OnInit {
  errorMessage: string | null = null;
   
 
- public availableTags$: Observable<Tag[]> = this.eventService.getAvailableTags();
+
+ private availableTagsSubject = new BehaviorSubject<Tag[]>([]);
+public availableTags$ = this.availableTagsSubject.asObservable();
  public selectedTagNames: string[] = []; 
 public newTagControl = new FormControl('');
 
@@ -37,16 +39,20 @@ public newTagControl = new FormControl('');
 
  ngOnInit(): void {
  this.initForm();
-    
 
- this.route.paramMap.pipe(
- filter(params => params.has('id')),
- tap(params => {
- this.eventId = Number(params.get('id'));
- this.isEditMode = true;
- this.loadEventData(this.eventId!);
- })
- ).subscribe();
+  this.eventService.getAvailableTags().pipe(
+    tap(tags => this.availableTagsSubject.next(tags))
+  ).subscribe();
+
+
+  this.route.paramMap.pipe(
+    filter(params => params.has('id')),
+    tap(params => {
+      this.eventId = Number(params.get('id'));
+      this.isEditMode = true;
+      this.loadEventData(this.eventId!);
+    })
+  ).subscribe();
  }
 
  initForm(): void {
@@ -167,27 +173,36 @@ public newTagControl = new FormControl('');
  });
  }
 
- addCustomTag(): void {
-    const newTagName = (this.newTagControl.value || '').trim();
-    
-    if (newTagName && newTagName.length > 0) {
-        const tagNamesControl = this.eventForm.get('tagNames');
-        const currentTags = tagNamesControl!.value as string[];
-        
-        if (currentTags.length >= 5) {
-            this.errorMessage = 'Maximum 5 tags are allowed per event.';
-            return;
-        }
+addCustomTag(): void {
+  const newTagName = (this.newTagControl.value || '').trim();
+  if (!newTagName) return;
 
-        if (!currentTags.map(t => t.toLowerCase()).includes(newTagName.toLowerCase())) {
-            
-            tagNamesControl!.setValue([...currentTags, newTagName]);
-            tagNamesControl!.markAsDirty();
-            
-            this.newTagControl.setValue('');
-            this.errorMessage = null; 
-        }
-    }
+  const tagNamesControl = this.eventForm.get('tagNames');
+  const currentTags = tagNamesControl!.value as string[];
+  const availableTags = this.availableTagsSubject.value;
+
+  if (currentTags.length >= 5) {
+    this.errorMessage = 'Maximum 5 tags are allowed per event.';
+    return;
+  }
+
+
+  const existsInAvailable = availableTags.some(
+    t => t.name.toLowerCase() === newTagName.toLowerCase()
+  );
+
+  if (!existsInAvailable) {
+    const newTag: Tag = { id: Date.now(), name: newTagName };
+    this.availableTagsSubject.next([...availableTags, newTag]);
+  }
+
+  if (!currentTags.map(t => t.toLowerCase()).includes(newTagName.toLowerCase())) {
+    tagNamesControl!.setValue([...currentTags, newTagName]);
+  }
+
+  tagNamesControl!.markAsDirty();
+  this.newTagControl.setValue('');
+  this.errorMessage = null;
 }
  get f() { return this.eventForm.controls; }
 }

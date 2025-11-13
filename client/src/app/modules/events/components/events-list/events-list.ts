@@ -72,33 +72,32 @@ export class EventsListComponent implements OnInit {
  } as Event;
  });
  
- this.eventsSubject.next(this.allEvents); // Initial display
+ this.eventsSubject.next(this.allEvents);
  });
  }
 
 
- applyCombinedFilter(searchTerm: string | null, tagNames: string[]): void {
- const term = (searchTerm || '').toLowerCase();
- let filtered = this.allEvents;
+applyCombinedFilter(searchTerm: string | null, tagNames: string[]): void {
+  const term = (searchTerm || '').toLowerCase();
+  let filtered = this.allEvents;
 
+  if (term) {
+    filtered = filtered.filter(event => 
+      event.title.toLowerCase().includes(term) ||
+      event.description.toLowerCase().includes(term) ||
+      event.location.toLowerCase().includes(term)
+    );
+  }
 
- if (term) {
- filtered = filtered.filter(event => 
- event.title.toLowerCase().includes(term) ||
- event.description.toLowerCase().includes(term) ||
- event.location.toLowerCase().includes(term)
- );
- }
-    
-    if (tagNames.length > 0) {
-        filtered = filtered.filter(event => {
+  if (tagNames.length > 0) {
+    filtered = filtered.filter(event => {
+      const eventTagNames = event.tags.map(t => t.name);
+      return tagNames.every(tag => eventTagNames.includes(tag));
+    });
+  }
 
-            return event.tags.some(tag => tagNames.includes(tag.name));
-        });
-    }
-
- this.eventsSubject.next(filtered);
- }
+  this.eventsSubject.next(filtered);
+}
   
 
   onTagSelect(tag: Tag, event: any): void {

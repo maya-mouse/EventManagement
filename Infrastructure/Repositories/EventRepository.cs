@@ -106,4 +106,17 @@ public class EventRepository : IEventRepository
             .Where(et => et.EventId == eventId)
             .ExecuteDeleteAsync(cancellationToken);
     }
+
+    public async Task<List<Event>> GetAllUserEventsForAIAsync(int userId, CancellationToken cancellationToken)
+    {
+       return await _context.Events
+        .Where(e => e.HostId == userId || e.Participants.Any(ep => ep.UserId == userId))
+        .Include(e => e.EventTags)
+            .ThenInclude(et => et.Tag)
+            
+        .Include(e => e.Participants)
+            .ThenInclude(ep => ep.User) 
+        .OrderBy(e => e.DateTime)
+        .ToListAsync(cancellationToken);
+    }
 }

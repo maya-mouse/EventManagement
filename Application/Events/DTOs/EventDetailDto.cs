@@ -14,14 +14,11 @@ public class EventDetailDto
 
     public ParticipantDto Host { get; set; } = null!;
     public int HostId { get; set; }
-
     public List<ParticipantDto> Participants { get; set; } = new List<ParticipantDto>();
     public List<TagDto> Tags { get; set; } = new List<TagDto>();
 
-
     public bool IsJoined { get; set; }
     public bool IsOrganizer { get; set; }
-    
     public int ParticipantsCount { get; set; }
     public bool IsFull => Capacity.HasValue && ParticipantsCount >= Capacity.Value;
 }

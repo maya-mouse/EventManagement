@@ -14,6 +14,6 @@ public interface IEventRepository
         Task<bool> IsUserJoinedAsync(int userId, int eventId, CancellationToken cancellationToken);
         Task JoinEventAsync(EventParticipant userEvent, CancellationToken cancellationToken);
         Task LeaveEventAsync(int userId, int eventId, CancellationToken cancellationToken);
-
         Task RemoveAllTagsFromEventAsync(int eventId, CancellationToken cancellationToken);
+        Task<List<Event>> GetAllUserEventsForAIAsync(int userId, CancellationToken cancellationToken);
 }

@@ -22,7 +22,6 @@ ITagRepository tagRepository, IMapper mapper)
         {
             throw new UnauthorizedAccessException("Only the event organizer can modify the event.");
         }
-        
 
         mapper.Map(request.updateEventDto, existingEvent);
 

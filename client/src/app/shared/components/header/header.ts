@@ -3,6 +3,7 @@ import { RouterLink, Router } from '@angular/router'; // Додайте Router
 import { AsyncPipe, CommonModule } from '@angular/common';
 import { AuthService } from '../../../core/services/auth.service';
 import { Observable } from 'rxjs';
+import { AiService } from '../../../core/services/ai.service';
 
 @Component({
   selector: 'app-header',
@@ -12,6 +13,7 @@ import { Observable } from 'rxjs';
 })
 export class Header {
   private authService = inject(AuthService);
+  private aiService = inject(AiService);
   private router = inject(Router); 
 
   isLoggedIn$: Observable<boolean> = this.authService.isLoggedIn$;
@@ -22,6 +24,7 @@ export class Header {
 
   onLogout(): void {
     this.authService.logout();
+    this.aiService.clearHistory();
     this.router.navigate(['/events']);
   }
 }

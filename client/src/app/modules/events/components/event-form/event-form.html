@@ -74,7 +74,6 @@
                 @if (availableTags$ | async; as tags) {
                     @for (tag of tags; track tag.id) {
                         <label class="inline-flex items-center cursor-pointer">
-                            <!-- [checked] перевіряє, чи присутній тег у масиві tagNames форми -->
                             <input type="checkbox" 
                                    [value]="tag.name"
                                    [checked]="f['tagNames'].value?.includes(tag.name)"

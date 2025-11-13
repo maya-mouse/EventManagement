@@ -92,6 +92,10 @@
                 <div (click)="onEventClick(event.id); $event.stopPropagation()" [class]="color.bg + ' ' + color.text" 
                     class="text-xs rounded-sm px-1 py-0.5 mt-0.5 truncate hover:shadow transition duration-100 border border-transparent">
                     <span class="font-bold">{{ event.dateTime | date:'shortTime' }}</span> - {{ event.title }}
+                @if(event.isOrganizer){
+                         <span
+                            class="ml-2 mr-3 px-2 py-0.5 text-xs font-semibold text-white bg-pink-600 rounded-full">ORG</span>
+                    }
                 </div>
                 }
                 }
@@ -121,11 +125,17 @@
 
                 @if (day.events.length > 0) {
                 @for (event of day.events; track event.id) {
+                @let color = getTagColorClass(event.tags[0].name);
+                
                 <div (click)="onEventClick(event.id); $event.stopPropagation()"
-                    [class.bg-purple-100]="event.isOrganizer" [class.text-purple-700]="event.isOrganizer"
-                    [class.bg-blue-100]="!event.isOrganizer" [class.text-blue-700]="!event.isOrganizer"
+                    [class]="color.bg + ' ' + color.text" 
+                    class="text-xs rounded-sm px-1 py-0.5 mt-0.5 truncate hover:shadow transition duration-100 border border-transparent"
                     class="text-xs rounded-sm p-1 mt-1 truncate hover:shadow transition duration-100">
                     <span class="font-bold">{{ event.dateTime | date:'HH:mm' }}</span> - {{ event.title }}
+                    @if(event.isOrganizer){
+                         <span
+                            class="ml-2 mr-3 px-2 py-0.5 text-xs font-semibold text-white bg-pink-600 rounded-full">ORG</span>
+                    }
                 </div>
                 }
                 } @else {
