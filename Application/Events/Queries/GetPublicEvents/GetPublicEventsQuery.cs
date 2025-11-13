@@ -4,4 +4,5 @@ using MediatR;
 
 namespace Application.Events.Queries;
 
-public record GetPublicEventsQuery(int? UserId) : IRequest<List<EventDto>>;
+public record GetPublicEventsQuery(int? UserId, string? SearchTerm,
+List<string>? TagNames) : IRequest<List<EventDto>>;

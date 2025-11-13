@@ -1,11 +1,13 @@
 using System.Reflection;
 using System.Text;
 using Api.Middleware;
+using Application.AiAssistant.Queries;
 using Application.Core;
 using Application.Interfaces.Repositories;
 using Application.Interfaces.Services;
 using Application.Users.Commands.Register;
 using FluentValidation;
+using Infrastructure.AiAssistant;
 using Infrastructure.Authentication;
 using Infrastructure.Persistence;
 using Infrastructure.Repositories;
@@ -14,6 +16,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using OpenAI;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -60,6 +64,11 @@ builder.Services.AddScoped<IJwtGenerator, JwtGenerator>();
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IEventRepository, EventRepository>();
+builder.Services.AddScoped<ITagRepository, TagRepository>();
+
+builder.Services.AddHttpClient<GroqAIAssistantService>();
+builder.Services.AddScoped<IAiAssistantService, GroqAIAssistantService>();
+
 
 builder.Services.AddDbContext<AppDbContext>(opt =>
 {
@@ -83,8 +92,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
       };
   });
 
-builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+
+builder.Services.AddValidatorsFromAssembly(typeof(MappingProfile).Assembly);
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+
 
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(RegisterHandler).Assembly));
 

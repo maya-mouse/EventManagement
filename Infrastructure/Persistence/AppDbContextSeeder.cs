@@ -35,6 +35,34 @@ public class AppDbContextSeeder
         _context.Users.AddRange(alice, bob);
         await _context.SaveChangesAsync();
 
+        var tags = new List<Tag>
+        {
+            new Tag
+            {
+                Name = "Tech"
+            },
+            new Tag
+            {
+                Name = "Art"
+            },
+            new Tag
+            {
+                Name = "Business"
+            },
+            new Tag
+            {
+                Name = "Music"
+            },
+            new Tag
+            {
+                Name = "Entertainment"
+            }
+        };
+
+        _context.Tags.AddRange(tags);
+        await _context.SaveChangesAsync();
+
+
         var events = new List<Event>
         {    new Event
             {
@@ -44,7 +72,7 @@ public class AppDbContextSeeder
                 DateTime = DateTime.UtcNow.AddDays(30),
                 Location = "Kyiv Expo Center",
                 Capacity = 100,
-                IsPublic = true
+                IsPublic = true,
             },
             new Event
             {
@@ -80,6 +108,20 @@ public class AppDbContextSeeder
 
         _context.Events.AddRange(events);
         await _context.SaveChangesAsync(); 
+
+        var eventTags = new List<EventTag>
+    {
+        new EventTag { EventId = events[0].Id, TagId = tags[0].Id },
+        new EventTag { EventId = events[1].Id, TagId = tags[0].Id},
+        new EventTag { EventId = events[1].Id, TagId = tags[2].Id},
+        new EventTag { EventId = events[2].Id, TagId = tags[0].Id },
+        new EventTag { EventId = events[2].Id, TagId = tags[1].Id },
+        new EventTag { EventId = events[2].Id, TagId = tags[4].Id },
+        new EventTag { EventId = events[3].Id, TagId = tags[4].Id},
+    };
+
+    _context.EventTags.AddRange(eventTags);
+    await _context.SaveChangesAsync();
 
     var eventParticipants = new List<EventParticipant>
     {

@@ -24,8 +24,10 @@ services:
       context: .
       dockerfile: Api/Dockerfile
     environment:
+      Groq__ApiKey: ${GROQ_API_KEY}
       Jwt__Key: ${JWT_SECRET_KEY}
       ConnectionStrings__DefaultConnection: Host=db;Port=${DB_PORT};Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
+      GROQ_API_KEY: ${GROQ_API_KEY}
       ASPNETCORE_URLS: http://+:8080
     ports:
       - "5000:8080"

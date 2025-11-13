@@ -59,51 +59,6 @@ namespace Infrastructure.Persistence.Migrations
                     b.HasIndex("HostId");
 
                     b.ToTable("Events");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Capacity = 100,
-                            DateTime = new DateTime(2025, 12, 2, 10, 4, 31, 547, DateTimeKind.Utc).AddTicks(6617),
-                            Description = "Largest tech gathering of the year.",
-                            HostId = 1,
-                            IsPublic = true,
-                            Location = "Kyiv Expo Center",
-                            Title = "Annual Tech Conference"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Capacity = 50,
-                            DateTime = new DateTime(2025, 12, 17, 10, 4, 31, 547, DateTimeKind.Utc).AddTicks(6624),
-                            Description = "Hands-on coding session for contributors.",
-                            HostId = 1,
-                            IsPublic = true,
-                            Location = "Online via Zoom",
-                            Title = "Open Source Workshop"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            DateTime = new DateTime(2025, 11, 17, 10, 4, 31, 547, DateTimeKind.Utc).AddTicks(6627),
-                            Description = "Discussion on classic literature.",
-                            HostId = 2,
-                            IsPublic = true,
-                            Location = "Central Library",
-                            Title = "Local Book Club Meeting"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Capacity = 10,
-                            DateTime = new DateTime(2025, 11, 12, 10, 4, 31, 547, DateTimeKind.Utc).AddTicks(6628),
-                            Description = "Team building event (Private).",
-                            HostId = 1,
-                            IsPublic = false,
-                            Location = "Italian Restaurant",
-                            Title = "Private Team Dinner"
-                        });
                 });
 
             modelBuilder.Entity("Domain.EventParticipant", b =>
@@ -122,32 +77,41 @@ namespace Infrastructure.Persistence.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("EventParticipants");
+                });
 
-                    b.HasData(
-                        new
-                        {
-                            EventId = 1,
-                            UserId = 1,
-                            JoinDate = new DateTime(2025, 11, 2, 10, 4, 31, 547, DateTimeKind.Utc).AddTicks(6643)
-                        },
-                        new
-                        {
-                            EventId = 1,
-                            UserId = 2,
-                            JoinDate = new DateTime(2025, 11, 2, 10, 4, 31, 547, DateTimeKind.Utc).AddTicks(6645)
-                        },
-                        new
-                        {
-                            EventId = 2,
-                            UserId = 1,
-                            JoinDate = new DateTime(2025, 11, 2, 10, 4, 31, 547, DateTimeKind.Utc).AddTicks(6645)
-                        },
-                        new
-                        {
-                            EventId = 3,
-                            UserId = 2,
-                            JoinDate = new DateTime(2025, 11, 2, 10, 4, 31, 547, DateTimeKind.Utc).AddTicks(6646)
-                        });
+            modelBuilder.Entity("Domain.EventTag", b =>
+                {
+                    b.Property<int>("EventId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TagId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("EventId", "TagId");
+
+                    b.HasIndex("TagId");
+
+                    b.ToTable("EventTags");
+                });
+
+            modelBuilder.Entity("Domain.Tag", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Tags");
                 });
 
             modelBuilder.Entity("Domain.User", b =>
@@ -175,23 +139,10 @@ namespace Infrastructure.Persistence.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("Users");
+                    b.HasIndex("Username")
+                        .IsUnique();
 
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Email = "alice.org@event.com",
-                            PasswordHash = "$2a$10$wU0T5zJ1z2z3z4z5z6z7z8z9z0z1z2z3z4z5z",
-                            Username = "Alice"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Email = "bob.user@event.com",
-                            PasswordHash = "$2a$10$xU0T5zJ1z2z3z4z5z6z7z8z9z0z1z2z3z4z5z",
-                            Username = "Bob"
-                        });
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("Domain.Event", b =>
@@ -224,9 +175,35 @@ namespace Infrastructure.Persistence.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Domain.EventTag", b =>
+                {
+                    b.HasOne("Domain.Event", "Event")
+                        .WithMany("EventTags")
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Tag", "Tag")
+                        .WithMany("EventTags")
+                        .HasForeignKey("TagId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Event");
+
+                    b.Navigation("Tag");
+                });
+
             modelBuilder.Entity("Domain.Event", b =>
                 {
+                    b.Navigation("EventTags");
+
                     b.Navigation("Participants");
+                });
+
+            modelBuilder.Entity("Domain.Tag", b =>
+                {
+                    b.Navigation("EventTags");
                 });
 
             modelBuilder.Entity("Domain.User", b =>

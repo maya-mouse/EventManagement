@@ -1,0 +1,47 @@
+<div class="max-w-xl mx-auto py-6">
+    @if (authService.isLoggedIn$ | async) {
+        <div class="bg-white p-6 shadow-xl rounded-xl border border-gray-200">
+                <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-4">
+                <textarea formControlName="question"
+                          placeholder="Ask me about your events (e.g., 'What events am I attending this week?')"
+                          rows="3"
+                          class="w-full p-3 placeholder-gray-400 border border-gray-300 rounded-lg focus:ring-pink-500 focus:border-pink-500"></textarea>
+                <button type="submit"  [disabled]="form.invalid || isProcessing"
+                        class="w-full py-2 font-semibold rounded-lg text-white bg-purple-600 hover:bg-purple-700 disabled:opacity-50 transition duration-150">
+                    @if (isProcessing) {
+                        Processing...
+                    } @else {
+                        Ask AI
+                    }
+                </button>
+            </form>
+
+            @if (messages.length > 0) {
+                <div class="mt-6 space-y-4 max-h-130 overflow-y-auto">
+                    
+                    @for (message of messages; track $index) {
+                        
+                        <div [class.bg-blue-50]="message.role === 'user'"
+                             [class.bg-gray-100]="message.role === 'assistant'"
+                             [class.border-pink-600]="message.role === 'assistant'"
+                             class="p-3 rounded-lg shadow-sm border-l-4">
+                            
+                            <p class="font-semibold"
+                               [class.text-blue-700]="message.role === 'user'"
+                               [class.text-pink-600]="message.role === 'assistant'">
+                                @if (message.role === 'user') {
+                                    You:
+                                } @else {
+                                    AI:
+                                }
+                            </p>
+                            
+                           <p class="text-gray-800 whitespace-pre-wrap" [innerHTML]="getSafeHtml(message.content)"></p>
+                        </div>
+                    }
+                </div>
+            }
+            </div>
+    } @else {
+        }
+</div>

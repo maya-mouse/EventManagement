@@ -1,5 +1,6 @@
 
 namespace Domain;
+
 public class Event
 {
     public int Id { get; set; }
@@ -14,5 +15,6 @@ public class Event
     public User Host { get; set; } = null!;
 
     public ICollection<EventParticipant> Participants { get; set; } = [];
+    public ICollection<EventTag> EventTags { get; set; } = [];
 
 }

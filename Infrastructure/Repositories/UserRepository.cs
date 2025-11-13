@@ -16,6 +16,11 @@ public class UserRepository : IUserRepository
     {
         return await _context.Users.FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
     }
+
+    public async Task<User?> GetUserByIdAsync(int userId, CancellationToken cancellationToken)
+    {
+        return await _context.Users.FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
+    }
     public async Task<bool> IsEmailExistsAsync(string email, CancellationToken cancellationToken)
     {
         return await _context.Users.AnyAsync(u => u.Email == email, cancellationToken);

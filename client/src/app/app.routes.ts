@@ -8,6 +8,7 @@ import { EventFormComponent } from './modules/events/components/event-form/event
 import { authGuard } from './core/guards/auth.guard';
 import { ErrorPageComponent } from './shared/components/error-page/error-page';
 
+
 export const routes: Routes = [
     { path: '', redirectTo: '/events', pathMatch: 'full' },
     { path: 'events/:id/edit', component: EventFormComponent, canActivate: [authGuard] },

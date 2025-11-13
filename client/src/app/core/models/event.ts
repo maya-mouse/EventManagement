@@ -1,3 +1,5 @@
+import { Tag } from "./tag"
+
 export interface Event {
     id: number
     title: string
@@ -8,4 +10,5 @@ export interface Event {
     participantsCount: number
     isFull: boolean
     isJoined: boolean
+    tags: Tag[]
 }

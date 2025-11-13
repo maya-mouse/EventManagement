@@ -1,3 +1,5 @@
+using Application.Tags.DTOs;
+
 namespace Application.Events.DTOs;
 
 public class EventDto
@@ -10,7 +12,9 @@ public class EventDto
     public int? Capacity { get; set; }
     public int ParticipantsCount { get; set; }
     public bool IsFull => Capacity.HasValue && ParticipantsCount >= Capacity.Value;
-    
+
     public bool IsJoined { get; set; }
+    public List<TagDto> Tags { get; set; } = new List<TagDto>();
+
 
 }
